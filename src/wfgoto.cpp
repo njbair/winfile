@@ -103,7 +103,7 @@ vector<PDNODE> *FilterBySubtree(vector<PDNODE> * parents, vector<PDNODE> * child
 	vector<PDNODE> *results = new vector <PDNODE>();
 
 	// for each child, if parent in parents, return
-	for (int i = 0; i < children->size(); i++)
+	for (size_t i = 0; i < children->size(); i++)
 	{
 		PDNODE child = children->at(i);
 		PDNODE parent = child->pParent;
@@ -490,7 +490,7 @@ VOID UpdateGotoList(HWND hDlg)
 	if (options == NULL)
 		return;
 		
-	for (int i = 0; i < 10 && i < options->size(); i++)
+	for (size_t i = 0; i < 10 && i < options->size(); i++)
 	{
 		GetTreePath(options->at(i), szText);
 
@@ -517,6 +517,7 @@ VOID UpdateGotoList(HWND hDlg)
 /*                                                                          */
 /*--------------------------------------------------------------------------*/
 
+#ifndef _X64_
 WNDPROC wpOrigEditProc;
 
 // Subclass procedure: use arrow keys to change selection in listbox below.
@@ -560,6 +561,7 @@ LRESULT APIENTRY GotoEditSubclassProc(
 	}
 	return CallWindowProc(wpOrigEditProc, hwnd, uMsg, wParam, lParam);
 }
+#endif
 
 VOID 
 SetCurrentPathOfWindow(LPWSTR szPath)
@@ -587,8 +589,10 @@ GotoDirDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)
 		// Retrieve the handle to the edit control. 
 		hwndEdit = GetDlgItem(hDlg, IDD_GOTODIR);
 
-		// Subclass the edit control. 
+#ifndef _X64_
+        // Subclass the edit control. 
 		wpOrigEditProc = (WNDPROC)SetWindowLong(hwndEdit, GWL_WNDPROC, (LONG)GotoEditSubclassProc);
+#endif
 
 		SendDlgItemMessage(hDlg, IDD_GOTOLIST, LB_ADDSTRING, 0, (LPARAM)TEXT("<type name fragments into edit box>"));
 		break;
@@ -651,8 +655,10 @@ GotoDirDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		hwndEdit = GetDlgItem(hDlg, IDD_GOTODIR);
 
+#ifndef _X64_
 		// Remove the subclass from the edit control. 
 		SetWindowLong(hwndEdit, GWL_WNDPROC, (LONG)wpOrigEditProc);
+#endif
 		break;
 
 	default:
@@ -696,6 +702,7 @@ BuildDirectoryTreeBagOValues(PVOID pv)
 	return ERROR_SUCCESS;
 }
 
+// We're building a Trie structure (not just a directory tree)
 DWORD
 StartBuildingDirectoryTrie()
 {
